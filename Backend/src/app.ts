@@ -16,9 +16,10 @@ app.use(cookieParser());
 
 // Importing all Routes...
 import userRouter from "./routes/user.routes.ts";
+import urlRouter from "./routes/url.routes.ts";
 
 // Routes Decleration....
 app.use("/api/v1/users", userRouter);
-
+app.use("/api/v1/urls", urlRouter);
 
 export { app };
