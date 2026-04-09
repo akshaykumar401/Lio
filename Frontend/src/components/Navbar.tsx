@@ -1,12 +1,33 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux"
+import { logout as logoutAction } from "../features/user/user.slice.ts";
 
 const Navbar = () => {
+  const dispatch = useDispatch();
+  const location = useLocation();
+
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [isLogin, setIsLogin] = useState(false);
 
-  const location = useLocation();
+
+  // For Display Login or Logout
+  const { userData } = useSelector((state: any) => state.user);
+  const isEmpty = (obj: any) => {
+    for (let prop in obj) {
+      if (Object.hasOwn(obj, prop)) {
+        return false;
+      }
+    }
+    return true;
+  }
+  const [isLogin, setIsLogin] = useState(isEmpty(userData) || userData.type === 'logout/fulfilled' ? false : true)
+
+  // Handling Logout
+  const logout = async () => {
+    const action = await dispatch(logoutAction())
+    console.log(action)
+  }
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -20,8 +41,8 @@ const Navbar = () => {
     <nav
       id="main-navbar"
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
-          ? "bg-dark-900/80 backdrop-blur-xl border-b border-glass-border shadow-lg shadow-dark-900/50"
-          : "bg-transparent"
+        ? "bg-dark-900/80 backdrop-blur-xl border-b border-glass-border shadow-lg shadow-dark-900/50"
+        : "bg-transparent"
         }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -36,13 +57,12 @@ const Navbar = () => {
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
             {isLogin ? (
-              <Link
-                to="/login"
-                onClick={() => setIsLogin(false)}
+              <button
+                onClick={() => logout()}
                 className="px-4 py-2.5 text-sm text-center font-medium text-red-500 hover:text-white rounded-lg hover:bg-red-500/5 transition-all"
               >
                 Logout
-              </Link>
+              </button>
             ) : (
               <>
                 <Link
@@ -95,13 +115,12 @@ const Navbar = () => {
         <div className="px-4 pb-4 pt-2 space-y-1 bg-dark-800/90 backdrop-blur-xl border-t border-glass-border">
           <div className="pt-3 border-t border-glass-border flex flex-col gap-2">
             {isLogin ? (
-              <Link
-                to="/login"
-                onClick={() => setMobileOpen(false)}
+              <button
+                onClick={() => logout()}
                 className="px-4 py-2.5 text-sm text-center font-medium text-red-500 hover:text-white rounded-lg hover:bg-red-500/5 transition-all"
               >
                 Logout
-              </Link>
+              </button>
             ) : (
               <>
                 <Link

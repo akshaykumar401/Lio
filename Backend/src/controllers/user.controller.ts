@@ -90,7 +90,7 @@ const signin = asyncHandler(async (req: Request, res: Response) => {
   const { accessToken, refreshToken } = await generrateToken(user._id)
 
   // sending cookies
-  const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
+  const loggedInUser = await User.findById(user._id).select("-password -refreshToken").populate("urls")
   // Secure Cookie
   const options: CookieOptions = {
     httpOnly: true,

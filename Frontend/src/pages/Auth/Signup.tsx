@@ -1,9 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import BackgroundOrbs from "../../components/BackgroundOrbs";
+import { useDispatch } from "react-redux";
+import { signup } from "../../features/user/user.slice.ts";
 
 const Signup = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,9 +33,23 @@ const Signup = () => {
       return;
     }
     setIsLoading(true);
-    await new Promise((r) => setTimeout(r, 1000));
+
+    const data: {
+      fullname: string,
+      email: string,
+      password: string
+    } = {
+      fullname: name,
+      email: email,
+      password: password
+    }
+
+    const result = await dispatch(signup(data));
+    if (result.type === 'signup/fulfilled') {
+      navigate("/");
+    }
+    setError("Signup failed!");
     setIsLoading(false);
-    navigate("/dashboard");
   };
 
   return (

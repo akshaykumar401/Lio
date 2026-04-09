@@ -1,9 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import BackgroundOrbs from "../../components/BackgroundOrbs";
+import { useDispatch } from "react-redux";
+import { login } from "../../features/user/user.slice";
 
 const Login = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -12,12 +16,18 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     setIsLoading(true);
-    // Simulate login
-    await new Promise((r) => setTimeout(r, 1000));
+
+    const data = {
+      email: email,
+      password: password
+    }
+    const result = await dispatch(login(data));
+    if (result.type === 'login/fulfilled') {
+      navigate("/");
+    }
+    setError("Login failed!");
     setIsLoading(false);
-    navigate("/dashboard");
   };
 
   return (
