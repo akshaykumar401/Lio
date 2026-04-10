@@ -3,8 +3,9 @@ import {
   BackgroundOrbs,
   Navbar
 } from "../components/index.ts";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
+import { registerURL, deleteURL } from "../features/url/url.slice.ts";
 
 interface LinkItem {
   _id: string;
@@ -18,50 +19,8 @@ interface LinkItem {
   status: "active" | "expired";
 }
 
-// const MOCK_LINKS: LinkItem[] = [
-//   {
-//     id: "1",
-//     originalUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf",
-//     shortCode: "yt-rick",
-//     clicks: 12847,
-//     createdAt: "2026-04-01",
-//     status: "active",
-//   },
-//   {
-//     id: "2",
-//     originalUrl: "https://github.com/user/awesome-project/blob/main/README.md",
-//     shortCode: "gh-proj",
-//     clicks: 3291,
-//     createdAt: "2026-03-28",
-//     status: "active",
-//   },
-//   {
-//     id: "3",
-//     originalUrl: "https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms/edit",
-//     shortCode: "gdoc-q1",
-//     clicks: 856,
-//     createdAt: "2026-03-15",
-//     status: "active",
-//   },
-//   {
-//     id: "4",
-//     originalUrl: "https://stackoverflow.com/questions/12345678/how-to-center-a-div",
-//     shortCode: "so-css",
-//     clicks: 4123,
-//     createdAt: "2026-02-20",
-//     status: "expired",
-//   },
-//   {
-//     id: "5",
-//     originalUrl: "https://medium.com/@user/building-modern-web-apps-with-react-2026",
-//     shortCode: "med-rct",
-//     clicks: 1560,
-//     createdAt: "2026-03-05",
-//     status: "active",
-//   },
-// ];
-
 const Dashboard = () => {
+  const dispatch = useDispatch();
   const { userData } = useSelector((state: any) => state.user);
   const [links, setLinks] = useState<LinkItem[]>([]);
   const [newUrl, setNewUrl] = useState("");
@@ -92,19 +51,13 @@ const Dashboard = () => {
     e.preventDefault();
     if (!newUrl.trim()) return;
     setIsCreating(true);
-    await new Promise((r) => setTimeout(r, 800));
-    const newLink: LinkItem = {
-      _id: Date.now().toString(),
-      longUrl: newUrl,
-      urlCode: customAlias || Math.random().toString(36).substring(2, 8),
-      clicks: 0,
-      createdAt: new Date().toISOString().split("T")[0],
-      status: "active",
-      owner: userData._id,
-      __v: 0,
-      updatedAt: new Date().toISOString().split("T")[0],
-    };
-    setLinks([newLink, ...links]);
+    const res = await dispatch(registerURL({ longUrl: newUrl, customUrl: customAlias === "" ? undefined : customAlias }));
+    if (res.type === "registerURL/fulfilled") {
+      setLinks([res.payload, ...links]);
+    } else {
+      alert(res.error.message);
+    }
+
     setNewUrl("");
     setCustomAlias("");
     setIsCreating(false);
@@ -117,8 +70,13 @@ const Dashboard = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleDelete = (id: string) => {
-    setLinks(links.filter((l) => l._id !== id));
+  const handleDelete = async (id: string) => {
+    const res = await dispatch(deleteURL(id));
+    if (res.type === "deleteURL/fulfilled") {
+      setLinks(links.filter((l) => l._id !== id));
+    } else {
+      alert(res.error.message);
+    }
   };
 
   const truncateUrl = (url: string, max = 45) =>
@@ -128,7 +86,7 @@ const Dashboard = () => {
     <div className="relative min-h-screen">
       <BackgroundOrbs />
       <Navbar />
-      
+
       <main className="relative pt-24 pb-16 px-4 max-w-7xl mx-auto" id="dashboard-main">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
@@ -235,8 +193,8 @@ const Dashboard = () => {
                   key={status}
                   onClick={() => setFilterStatus(status)}
                   className={`px-4 py-2.5 text-xs font-medium rounded-lg transition-all duration-200 capitalize ${filterStatus === status
-                      ? "bg-accent-500/20 text-accent-300 border border-accent-500/30"
-                      : "text-dark-300 hover:text-white hover:bg-white/5 border border-transparent"
+                    ? "bg-accent-500/20 text-accent-300 border border-accent-500/30"
+                    : "text-dark-300 hover:text-white hover:bg-white/5 border border-transparent"
                     }`}
                 >
                   {status}
@@ -318,8 +276,8 @@ const Dashboard = () => {
                 <div className="sm:col-span-1 text-center">
                   <span
                     className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${link.status === "active"
-                        ? "bg-green-500/15 text-green-400"
-                        : "bg-red-500/15 text-red-400"
+                      ? "bg-green-500/15 text-green-400"
+                      : "bg-red-500/15 text-red-400"
                       }`}
                   >
                     <span
@@ -412,7 +370,7 @@ const Dashboard = () => {
                     <span className="text-dark-400 font-normal ml-1">(optional)</span>
                   </label>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-dark-400 shrink-0">lio.to/</span>
+                    <span className="text-sm text-dark-400 shrink-0">{window.location.origin}/</span>
                     <input
                       type="text"
                       id="modal-alias-input"

@@ -1,10 +1,18 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import BackgroundOrbs from "../components/BackgroundOrbs";
+import { useDispatch } from "react-redux";
+import { redirectURL } from "../features/url/url.slice.ts";
 
 const Redirect = () => {
+  const dispatch = useDispatch();
   const { id } = useParams();
   const [countdown, setCountdown] = useState(3);
+
+  const handleRedirect = async () => {
+    const res = await dispatch(redirectURL(id));
+    window.location.href = res.payload.longUrl;
+  }
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -12,6 +20,7 @@ const Redirect = () => {
         if (prev <= 1) {
           clearInterval(timer);
           // In production, this would redirect to the actual URL
+          handleRedirect()
           return 0;
         }
         return prev - 1;
@@ -64,7 +73,7 @@ const Redirect = () => {
           Taking you to your destination
         </p>
         <p className="text-dark-400 text-xs">
-          Short link: <span className="text-accent-400">lio.to/{id}</span>
+          Short link: <span className="text-accent-400">{window.location.origin}/{id}</span>
         </p>
 
         <div className="mt-8 glass-card inline-flex items-center gap-3 px-5 py-3">

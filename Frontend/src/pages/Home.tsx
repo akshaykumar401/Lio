@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { BackgroundOrbs, Navbar, Footer } from "../components/index.ts";
+import { useDispatch } from "react-redux";
+import { guestURL } from "../features/url/url.slice.ts";
 
 const Home = () => {
+  const dispatch = useDispatch();
   const [url, setUrl] = useState("");
   const [shortenedUrl, setShortenedUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -15,10 +18,13 @@ const Home = () => {
     if (!url.trim()) return;
     setIsLoading(true);
     setShortenedUrl("");
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1200));
-    const hash = Math.random().toString(36).substring(2, 8);
-    setShortenedUrl(`lio.to/${hash}`);
+    const res = await dispatch(guestURL({ longUrl: url }));
+    if (res.payload.urlCode) {
+      setShortenedUrl(`${window.location.origin}/${res.payload.urlCode}`);
+    } else {
+      alert("While shortening the URL, SomeThing went wrong")
+    }
+    setUrl("")
     setIsLoading(false);
   };
 
@@ -190,14 +196,14 @@ const Home = () => {
                       <path d="M20 6L9 17l-5-5" />
                     </svg>
                   </div>
-                  <a
-                    href={`https://${shortenedUrl}`}
+                  <Link
+                    to={`${shortenedUrl}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-accent-300 font-medium text-sm truncate hover:underline"
                   >
                     {shortenedUrl}
-                  </a>
+                  </Link>
                 </div>
                 <button
                   onClick={handleCopy}
