@@ -2,6 +2,7 @@ import { Home, Dashboard } from "./pages/index.ts"
 import { useSelector, useDispatch } from "react-redux"
 import { useEffect, useState } from "react"
 import { getUserProfile } from "./features/user/user.slice.ts"
+import { Navigate } from "react-router-dom"
 
 function App() {
   const { userData } = useSelector((state: any) => state.user);

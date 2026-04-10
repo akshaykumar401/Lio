@@ -1,65 +1,69 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   BackgroundOrbs,
   Navbar
 } from "../components/index.ts";
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 interface LinkItem {
-  id: string;
-  originalUrl: string;
-  shortCode: string;
+  _id: string;
+  longUrl: string;
+  owner: string;
+  urlCode: string;
   clicks: number;
   createdAt: string;
+  updatedAt: string;
+  __v: number;
   status: "active" | "expired";
 }
 
-const MOCK_LINKS: LinkItem[] = [
-  {
-    id: "1",
-    originalUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf",
-    shortCode: "yt-rick",
-    clicks: 12847,
-    createdAt: "2026-04-01",
-    status: "active",
-  },
-  {
-    id: "2",
-    originalUrl: "https://github.com/user/awesome-project/blob/main/README.md",
-    shortCode: "gh-proj",
-    clicks: 3291,
-    createdAt: "2026-03-28",
-    status: "active",
-  },
-  {
-    id: "3",
-    originalUrl: "https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms/edit",
-    shortCode: "gdoc-q1",
-    clicks: 856,
-    createdAt: "2026-03-15",
-    status: "active",
-  },
-  {
-    id: "4",
-    originalUrl: "https://stackoverflow.com/questions/12345678/how-to-center-a-div",
-    shortCode: "so-css",
-    clicks: 4123,
-    createdAt: "2026-02-20",
-    status: "expired",
-  },
-  {
-    id: "5",
-    originalUrl: "https://medium.com/@user/building-modern-web-apps-with-react-2026",
-    shortCode: "med-rct",
-    clicks: 1560,
-    createdAt: "2026-03-05",
-    status: "active",
-  },
-];
+// const MOCK_LINKS: LinkItem[] = [
+//   {
+//     id: "1",
+//     originalUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf",
+//     shortCode: "yt-rick",
+//     clicks: 12847,
+//     createdAt: "2026-04-01",
+//     status: "active",
+//   },
+//   {
+//     id: "2",
+//     originalUrl: "https://github.com/user/awesome-project/blob/main/README.md",
+//     shortCode: "gh-proj",
+//     clicks: 3291,
+//     createdAt: "2026-03-28",
+//     status: "active",
+//   },
+//   {
+//     id: "3",
+//     originalUrl: "https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms/edit",
+//     shortCode: "gdoc-q1",
+//     clicks: 856,
+//     createdAt: "2026-03-15",
+//     status: "active",
+//   },
+//   {
+//     id: "4",
+//     originalUrl: "https://stackoverflow.com/questions/12345678/how-to-center-a-div",
+//     shortCode: "so-css",
+//     clicks: 4123,
+//     createdAt: "2026-02-20",
+//     status: "expired",
+//   },
+//   {
+//     id: "5",
+//     originalUrl: "https://medium.com/@user/building-modern-web-apps-with-react-2026",
+//     shortCode: "med-rct",
+//     clicks: 1560,
+//     createdAt: "2026-03-05",
+//     status: "active",
+//   },
+// ];
 
 const Dashboard = () => {
   const { userData } = useSelector((state: any) => state.user);
-  const [links, setLinks] = useState<LinkItem[]>(MOCK_LINKS);
+  const [links, setLinks] = useState<LinkItem[]>([]);
   const [newUrl, setNewUrl] = useState("");
   const [customAlias, setCustomAlias] = useState("");
   const [isCreating, setIsCreating] = useState(false);
@@ -71,10 +75,15 @@ const Dashboard = () => {
   const totalClicks = links.reduce((sum, l) => sum + l.clicks, 0);
   const activeLinks = links.filter((l) => l.status === "active").length;
 
+  // Getting user links
+  useEffect(() => {
+    setLinks(userData.urls)
+  }, [userData]);
+
   const filteredLinks = links.filter((l) => {
     const matchesSearch =
-      l.originalUrl.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      l.shortCode.toLowerCase().includes(searchQuery.toLowerCase());
+      l.longUrl.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      l.urlCode.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter = filterStatus === "all" || l.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
@@ -85,12 +94,15 @@ const Dashboard = () => {
     setIsCreating(true);
     await new Promise((r) => setTimeout(r, 800));
     const newLink: LinkItem = {
-      id: Date.now().toString(),
-      originalUrl: newUrl,
-      shortCode: customAlias || Math.random().toString(36).substring(2, 8),
+      _id: Date.now().toString(),
+      longUrl: newUrl,
+      urlCode: customAlias || Math.random().toString(36).substring(2, 8),
       clicks: 0,
       createdAt: new Date().toISOString().split("T")[0],
       status: "active",
+      owner: userData._id,
+      __v: 0,
+      updatedAt: new Date().toISOString().split("T")[0],
     };
     setLinks([newLink, ...links]);
     setNewUrl("");
@@ -100,13 +112,13 @@ const Dashboard = () => {
   };
 
   const handleCopy = (shortCode: string, id: string) => {
-    navigator.clipboard.writeText(`https://lio.to/${shortCode}`);
+    navigator.clipboard.writeText(`${window.location.origin}/${shortCode}`);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
   };
 
   const handleDelete = (id: string) => {
-    setLinks(links.filter((l) => l.id !== id));
+    setLinks(links.filter((l) => l._id !== id));
   };
 
   const truncateUrl = (url: string, max = 45) =>
@@ -260,7 +272,7 @@ const Dashboard = () => {
           ) : (
             filteredLinks.map((link) => (
               <div
-                key={link.id}
+                key={link._id}
                 className="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 items-center px-4 sm:px-6 py-4 border-b border-glass-border last:border-b-0 table-row-hover"
               >
                 {/* Original URL */}
@@ -268,7 +280,7 @@ const Dashboard = () => {
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-dark-700 flex items-center justify-center shrink-0">
                       <img
-                        src={`https://www.google.com/s2/favicons?domain=${new URL(link.originalUrl).hostname}&sz=32`}
+                        src={`https://www.google.com/s2/favicons?domain=${new URL(link.longUrl).hostname}&sz=32`}
                         alt=""
                         className="w-4 h-4 rounded-sm"
                         onError={(e) => {
@@ -277,22 +289,22 @@ const Dashboard = () => {
                       />
                     </div>
                     <a
-                      href={link.originalUrl}
+                      href={link.longUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm text-dark-200 hover:text-white truncate transition-colors"
-                      title={link.originalUrl}
+                      title={link.longUrl}
                     >
-                      {truncateUrl(link.originalUrl)}
+                      {truncateUrl(link.longUrl)}
                     </a>
                   </div>
                 </div>
 
                 {/* Short Link */}
                 <div className="sm:col-span-2">
-                  <span className="text-sm font-medium text-accent-300">
-                    lio.to/{link.shortCode}
-                  </span>
+                  <Link to={`/${link.urlCode}`} className="text-sm font-medium text-accent-300">
+                    {window.location.origin}/{link.urlCode}
+                  </Link>
                 </div>
 
                 {/* Clicks */}
@@ -321,11 +333,11 @@ const Dashboard = () => {
                 {/* Actions */}
                 <div className="sm:col-span-2 flex items-center justify-end gap-2">
                   <button
-                    onClick={() => handleCopy(link.shortCode, link.id)}
+                    onClick={() => handleCopy(link.urlCode, link._id)}
                     className="p-2 rounded-lg text-dark-300 hover:text-white hover:bg-white/5 transition-all"
                     title="Copy short link"
                   >
-                    {copiedId === link.id ? (
+                    {copiedId === link._id ? (
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M20 6L9 17l-5-5" />
                       </svg>
@@ -337,7 +349,7 @@ const Dashboard = () => {
                     )}
                   </button>
                   <button
-                    onClick={() => handleDelete(link.id)}
+                    onClick={() => handleDelete(link._id)}
                     className="p-2 rounded-lg text-dark-300 hover:text-red-400 hover:bg-red-500/10 transition-all"
                     title="Delete link"
                   >
