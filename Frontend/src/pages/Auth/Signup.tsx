@@ -47,8 +47,9 @@ const Signup = () => {
     const result = await dispatch(signup(data));
     if (result.type === 'signup/fulfilled') {
       navigate("/");
+    } else {
+      setError("Signup failed!");
     }
-    setError("Signup failed!");
     setIsLoading(false);
   };
 
@@ -62,12 +63,7 @@ const Signup = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2.5 mb-6 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-500 to-neon-blue flex items-center justify-center group-hover:shadow-lg group-hover:shadow-accent-500/30 transition-all duration-300">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-              </svg>
-            </div>
+            <img src="/Lio.png" alt="Logo" className="w-10 h-10 rounded-xl" />
             <span className="text-2xl font-bold gradient-text">Lio</span>
           </Link>
           <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Create your account</h1>
@@ -177,9 +173,8 @@ const Signup = () => {
                     {[1, 2, 3, 4].map((i) => (
                       <div
                         key={i}
-                        className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-                          i <= passwordStrength.level ? passwordStrength.color : "bg-dark-600"
-                        }`}
+                        className={`h-1 flex-1 rounded-full transition-all duration-300 ${i <= passwordStrength.level ? passwordStrength.color : "bg-dark-600"
+                          }`}
                       />
                     ))}
                   </div>

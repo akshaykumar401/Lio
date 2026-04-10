@@ -37,12 +37,54 @@ export const logout: any = createAsyncThunk('logout', async (_, { rejectWithValu
     const response = await axios.post('/api/users/logout', {
       withCredentials: true
     });
-    console.log(response.data.data);
     return response.data.data;
   } catch (error) {
     return rejectWithValue(error.response.statusText);
   }
 })
+
+// Send OTP async thunk
+export const sendOTP: any = createAsyncThunk('sendOTP', async (data: { email: string }, { rejectWithValue }) => {
+  try {
+    const response = await axios.post('/api/users/send-otp', data);
+    return response.data.data;
+  } catch (error) {
+    return rejectWithValue(error.response.statusText);
+  }
+});
+
+// Verify OTP async thunk
+export const verifyOTP: any = createAsyncThunk('verifyOTP', async (data: { email: string, otp: string }, { rejectWithValue }) => {
+  try {
+    const response = await axios.post('/api/users/verify-otp', data);
+    return response.data.data;
+  } catch (error) {
+    return rejectWithValue(error.response.statusText);
+  }
+});
+
+// Reset Password async thunk
+export const resetPassword: any = createAsyncThunk('resetPassword', async (data: { email: string, password: string }, { rejectWithValue }) => {
+  try {
+    const response = await axios.patch('/api/users/reset-password', data);
+    return response.data.data;
+  } catch (error) {
+    return rejectWithValue(error.response.statusText);
+  }
+});
+
+// Getting User Profile async thunk
+export const getUserProfile: any = createAsyncThunk('getUserProfile', async (_, { rejectWithValue }) => {
+  try {
+    const response = await axios.get('/api/users/current-user', {
+      withCredentials: true
+    });
+    return response.data.data;
+  } catch (error) {
+    return rejectWithValue(error.response.statusText);
+  }
+});
+
 
 // User slice
 export const userSlice = createSlice({
@@ -89,6 +131,58 @@ export const userSlice = createSlice({
       state.userData = action;
     });
     builder.addCase(logout.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    // Send OTP
+    builder.addCase(sendOTP.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(sendOTP.fulfilled, (state) => {
+      state.loading = false;
+      state.userData = {};
+    });
+    builder.addCase(sendOTP.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    // Verify OTP
+    builder.addCase(verifyOTP.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(verifyOTP.fulfilled, (state) => {
+      state.loading = false;
+      state.userData = {};
+    });
+    builder.addCase(verifyOTP.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    // Reset Password
+    builder.addCase(resetPassword.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(resetPassword.fulfilled, (state) => {
+      state.loading = false;
+      state.userData = {};
+    });
+    builder.addCase(resetPassword.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    // Get User Profile
+    builder.addCase(getUserProfile.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(getUserProfile.fulfilled, (state, action) => {
+      state.loading = false;
+      state.userData = action.payload;
+    });
+    builder.addCase(getUserProfile.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload as string;
     });

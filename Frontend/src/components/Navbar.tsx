@@ -26,7 +26,6 @@ const Navbar = () => {
   // Handling Logout
   const logout = async () => {
     const action = await dispatch(logoutAction())
-    console.log(action)
   }
 
   useEffect(() => {

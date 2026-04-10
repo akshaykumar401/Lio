@@ -1,9 +1,9 @@
 import { useState } from "react";
 import {
   BackgroundOrbs,
-  Navbar,
-  Footer
+  Navbar
 } from "../components/index.ts";
+import { useSelector } from "react-redux";
 
 interface LinkItem {
   id: string;
@@ -58,6 +58,7 @@ const MOCK_LINKS: LinkItem[] = [
 ];
 
 const Dashboard = () => {
+  const { userData } = useSelector((state: any) => state.user);
   const [links, setLinks] = useState<LinkItem[]>(MOCK_LINKS);
   const [newUrl, setNewUrl] = useState("");
   const [customAlias, setCustomAlias] = useState("");
