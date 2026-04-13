@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "srv-d7eepfvavr4c73emohsg/api/v1/:path*"
+      "destination": "https://lio-a7t0.onrender.com/api/v1/:path*"
     }
   ]
 }
