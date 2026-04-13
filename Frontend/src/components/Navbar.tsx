@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux"
 import { logout as logoutAction } from "../features/user/user.slice.ts";
 
 const Navbar = () => {
   const dispatch = useDispatch();
-  const location = useLocation();
 
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -25,7 +24,7 @@ const Navbar = () => {
 
   // Handling Logout
   const logout = async () => {
-    const action = await dispatch(logoutAction())
+    await dispatch(logoutAction())
   }
 
   useEffect(() => {
@@ -34,7 +33,7 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const isActive = (path: string) => location.pathname === path;
+
 
   return (
     <nav

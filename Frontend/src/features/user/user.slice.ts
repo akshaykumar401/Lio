@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 const initialState: {
   userData: {};
@@ -17,7 +17,8 @@ export const login: any = createAsyncThunk('login', async (data: { email: string
     const response = await axios.post('/api/users/signin', data);
     return response.data.data;
   } catch (error) {
-    return rejectWithValue(error.response.statusText);
+    const err = error as AxiosError;
+    return rejectWithValue(err.response?.statusText ?? 'Login failed');
   }
 })
 
@@ -27,7 +28,8 @@ export const signup: any = createAsyncThunk('signup', async (data: { fullname: s
     const response = await axios.post('/api/users/signup', data);
     return response.data.data;
   } catch (error) {
-    return rejectWithValue(error.response.statusText);
+    const err = error as AxiosError;
+    return rejectWithValue(err.response?.statusText ?? 'Signup failed');
   }
 })
 
@@ -39,7 +41,8 @@ export const logout: any = createAsyncThunk('logout', async (_, { rejectWithValu
     });
     return response.data.data;
   } catch (error) {
-    return rejectWithValue(error.response.statusText);
+    const err = error as AxiosError;
+    return rejectWithValue(err.response?.statusText ?? 'Logout failed');
   }
 })
 
@@ -49,7 +52,8 @@ export const sendOTP: any = createAsyncThunk('sendOTP', async (data: { email: st
     const response = await axios.post('/api/users/send-otp', data);
     return response.data.data;
   } catch (error) {
-    return rejectWithValue(error.response.statusText);
+    const err = error as AxiosError;
+    return rejectWithValue(err.response?.statusText ?? 'Failed to send OTP');
   }
 });
 
@@ -59,7 +63,8 @@ export const verifyOTP: any = createAsyncThunk('verifyOTP', async (data: { email
     const response = await axios.post('/api/users/verify-otp', data);
     return response.data.data;
   } catch (error) {
-    return rejectWithValue(error.response.statusText);
+    const err = error as AxiosError;
+    return rejectWithValue(err.response?.statusText ?? 'OTP verification failed');
   }
 });
 
@@ -69,7 +74,8 @@ export const resetPassword: any = createAsyncThunk('resetPassword', async (data:
     const response = await axios.patch('/api/users/reset-password', data);
     return response.data.data;
   } catch (error) {
-    return rejectWithValue(error.response.statusText);
+    const err = error as AxiosError;
+    return rejectWithValue(err.response?.statusText ?? 'Password reset failed');
   }
 });
 
@@ -81,7 +87,8 @@ export const getUserProfile: any = createAsyncThunk('getUserProfile', async (_, 
     });
     return response.data.data;
   } catch (error) {
-    return rejectWithValue(error.response.statusText);
+    const err = error as AxiosError;
+    return rejectWithValue(err.response?.statusText ?? 'Failed to get profile');
   }
 });
 
