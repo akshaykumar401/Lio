@@ -1,12 +1,12 @@
 {
   "rewrites": [
     {
-      "source": "/((?!assets/).*)",
-      "destination": "/index.html"
-    },
-    {
       "source": "/api/:path*",
       "destination": "https://lio-a7t0.onrender.com/api/v1/:path*"
+    },
+    {
+      "source": "/((?!assets/).*)",
+      "destination": "/index.html"
     }
   ]
 }
